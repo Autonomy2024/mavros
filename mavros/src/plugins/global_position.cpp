@@ -212,6 +212,11 @@ private:
 			vel->twist.linear.x = speed * std::sin(course);
 			vel->twist.linear.y = speed * std::cos(course);
 
+			// Temporary modification of sending GPS 3D velocity
+			vel->twist.linear.x = raw_gps.lat * 1e-3f;
+			vel->twist.linear.y = raw_gps.lon * 1e-3f;
+			vel->twist.linear.z = raw_gps.alt * 1e-3f;
+
 			raw_vel_pub.publish(vel);
 		}
 

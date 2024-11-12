@@ -216,7 +216,7 @@ private:
 		 *  @snippet src/plugins/imu.cpp pub_enu
 		 */
 		// [pub_enu]
-		imu_pub.publish(imu_enu_msg);
+		imu_pub.publish(imu_ned_msg);
 		// [pub_enu]
 	}
 

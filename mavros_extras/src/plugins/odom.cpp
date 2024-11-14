@@ -235,20 +235,25 @@ private:
 		/**
 		 * Position parsing from odometry's parent frame to "LOCAL_FRD" frame.
 		 */
-		position = Eigen::Vector3d(tf_parent2parent_des.linear() * ftf::to_eigen(odom->pose.pose.position));
+		// position = Eigen::Vector3d(tf_parent2parent_des.linear() * ftf::to_eigen(odom->pose.pose.position));
+		position = Eigen::Vector3d(ftf::to_eigen(odom->pose.pose.position));
+
 
 		/**
 		 * Orientation parsing.
 		 */
 		Eigen::Quaterniond q_child2parent(ftf::to_eigen(odom->pose.pose.orientation));
-		Eigen::Affine3d tf_childDes2parentDes = tf_parent2parent_des * q_child2parent * tf_child2child_des.inverse();
-		orientation = Eigen::Quaterniond(tf_childDes2parentDes.linear());
+		// Eigen::Affine3d tf_childDes2parentDes = tf_parent2parent_des * q_child2parent * tf_child2child_des.inverse();
+		// orientation = Eigen::Quaterniond(tf_childDes2parentDes.linear());
+		orientation = q_child2parent;
 
 		/**
 		 * Linear and angular velocities are transformed to base_link_frd
 		 */
-		lin_vel = Eigen::Vector3d(tf_child2child_des.linear() * ftf::to_eigen(odom->twist.twist.linear));
-		ang_vel = Eigen::Vector3d(tf_child2child_des.linear() * ftf::to_eigen(odom->twist.twist.angular));
+		// lin_vel = Eigen::Vector3d(tf_child2child_des.linear() * ftf::to_eigen(odom->twist.twist.linear));
+		// ang_vel = Eigen::Vector3d(tf_child2child_des.linear() * ftf::to_eigen(odom->twist.twist.angular));
+		lin_vel = Eigen::Vector3d(ftf::to_eigen(odom->twist.twist.linear));
+		ang_vel = Eigen::Vector3d(ftf::to_eigen(odom->twist.twist.angular));
 
 		/** Apply covariance transforms */
 		r_pose.block<3, 3>(0, 0) = r_pose.block<3, 3>(3, 3) = tf_parent2parent_des.linear();
@@ -281,8 +286,8 @@ private:
 		// [[[end]]] (checksum: ead24a1a6a14496c9de6c1951ccfbbd7)
 
 		ftf::quaternion_to_mavlink(orientation, msg.q);
-		ftf::covariance_urt_to_mavlink(cov_pose_map, msg.pose_covariance);
-		ftf::covariance_urt_to_mavlink(cov_vel_map, msg.velocity_covariance);
+		// ftf::covariance_urt_to_mavlink(cov_pose_map, msg.pose_covariance);
+		// ftf::covariance_urt_to_mavlink(cov_vel_map, msg.velocity_covariance);
 
 		// send ODOMETRY msg
 		UAS_FCU(m_uas)->send_message_ignore_drop(msg);

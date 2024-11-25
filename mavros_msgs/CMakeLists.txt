@@ -33,6 +33,7 @@ add_message_files(
   GPSINPUT.msg
   GPSRAW.msg
   GPSRTK.msg
+  GimbalDeviceStatus.msg
   HilActuatorControls.msg
   HilControls.msg
   HilGPS.msg

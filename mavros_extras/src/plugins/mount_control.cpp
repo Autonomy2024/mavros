@@ -23,6 +23,7 @@
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <mavros_msgs/MountConfigure.h>
+#include <mavros_msgs/GimbalDeviceStatus.h>
 
 namespace mavros {
 namespace extra_plugins {
@@ -178,6 +179,7 @@ public:
 		mount_orientation_pub = mount_nh.advertise<geometry_msgs::Quaternion>("orientation", 10);
 		mount_status_pub = mount_nh.advertise<geometry_msgs::Vector3Stamped>("status", 10);
 		configure_srv = mount_nh.advertiseService("configure", &MountControlPlugin::mount_configure_cb, this);
+		gimbal_device_pub = mount_nh.advertise<mavros_msgs::GimbalDeviceStatus>("gimbal_device_status", 10);
 
 		// some gimbals send negated/inverted angle measurements
 		// these parameters correct that to obey the MAVLink frame convention
@@ -216,7 +218,8 @@ public:
 	{
 		return {
 			make_handler(&MountControlPlugin::handle_mount_orientation),
-			make_handler(&MountControlPlugin::handle_mount_status)
+			make_handler(&MountControlPlugin::handle_mount_status),
+			make_handler(&MountControlPlugin::handle_mount_gimbal_device_status)
 		};
 	}
 
@@ -226,6 +229,7 @@ private:
 	ros::Subscriber command_sub;
 	ros::Publisher mount_orientation_pub;
 	ros::Publisher mount_status_pub;
+	ros::Publisher gimbal_device_pub;
 	ros::ServiceServer configure_srv;
 
 	MountStatusDiag mount_diag;
@@ -346,6 +350,34 @@ private:
 		ROS_ERROR_COND_NAMED(!res.success, "mount", "MountConfigure: command plugin service call failed!");
 
 		return res.success;
+	}
+
+	/**
+	 * @brief Publish the gimbal device status
+	 *
+	 * Message specification: https://mavlink.io/en/messages/common.html#GIMBAL_DEVICE_ATTITUDE_STATUS
+	 * @param msg   the mavlink message
+	 * @param mo	received GIMBAL_DEVICE_ATTITUDE_STATUS msg
+	 */
+	void handle_mount_gimbal_device_status(const mavlink::mavlink_message_t *msg, mavlink::common::msg::GIMBAL_DEVICE_ATTITUDE_STATUS &mo)
+	{
+		mavros_msgs::GimbalDeviceStatus gimbal_status;
+
+		gimbal_status.header.frame_id = std::to_string(mo.target_component);
+		gimbal_status.header.stamp = ros::Time::now();
+
+		gimbal_status.q[0] = mo.q[0];
+		gimbal_status.q[1] = mo.q[1];
+		gimbal_status.q[2] = mo.q[2];
+		gimbal_status.q[3] = mo.q[3];
+		gimbal_status.angular_velocity_x = mo.angular_velocity_x;
+		gimbal_status.angular_velocity_y = mo.angular_velocity_y;
+		gimbal_status.angular_velocity_z = mo.angular_velocity_z;
+		gimbal_status.failure_flags = mo.failure_flags;
+		gimbal_status.device_flags = mo.flags;
+
+		gimbal_device_pub.publish(gimbal_status);
+		// mount_diag.set_status(mo.roll, mo.pitch, mo.yaw_absolute, timestamp);
 	}
 };
 }	// namespace extra_plugins

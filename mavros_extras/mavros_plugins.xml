@@ -33,6 +33,9 @@
   <class name="fake_gps" type="mavros::extra_plugins::FakeGPSPlugin" base_class_type="mavros::plugin::PluginBase">
     <description> Sends fake GPS from local position estimation source data (motion capture, vision) to FCU.</description>
   </class>
+  <class name="follow_target" type="mavros::extra_plugins::FollowTargetPlugin" base_class_type="mavros::plugin::PluginBase">
+    <description> Sends target global localization estimation source data to FCU.</description>
+  </class>
   <class name="gps_input" type="mavros::extra_plugins::GpsInputPlugin" base_class_type="mavros::plugin::PluginBase">
     <description>Send GPS_INPUT messages to the FCU.</description>
   </class>

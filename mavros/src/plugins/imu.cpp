@@ -83,6 +83,7 @@ public:
 		setup_covariance(unk_orientation_cov, 0.0);
 
 		imu_pub = imu_nh.advertise<sensor_msgs::Imu>("data", 10);
+		imu_pub_enu = imu_nh.advertise<sensor_msgs::Imu>("data_enu", 10);
 		magn_pub = imu_nh.advertise<sensor_msgs::MagneticField>("mag", 10);
 		temp_imu_pub = imu_nh.advertise<sensor_msgs::Temperature>("temperature_imu", 10);
 		temp_baro_pub = imu_nh.advertise<sensor_msgs::Temperature>("temperature_baro", 10);
@@ -110,6 +111,7 @@ private:
 	std::string frame_id;
 
 	ros::Publisher imu_pub;
+	ros::Publisher imu_pub_enu;
 	ros::Publisher imu_raw_pub;
 	ros::Publisher magn_pub;
 	ros::Publisher temp_imu_pub;
@@ -217,6 +219,7 @@ private:
 		 */
 		// [pub_enu]
 		imu_pub.publish(imu_ned_msg);
+		imu_pub_enu.publish(imu_enu_msg);
 		// [pub_enu]
 	}
 
